@@ -100,6 +100,34 @@
             -moz-appearance: none;
         }
 
+        input[type="datetime-local"].form-control {
+            cursor: pointer;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='2' ry='2'%3E%3C/rect%3E%3Cline x1='16' y1='2' x2='16' y2='6'%3E%3C/line%3E%3Cline x1='8' y1='2' x2='8' y2='6'%3E%3C/line%3E%3Cline x1='3' y1='10' x2='21' y2='10'%3E%3C/line%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            padding-right: 45px;
+        }
+
+        input[type="datetime-local"].form-control:hover {
+            border-color: #667eea;
+            background-color: #f0f4ff;
+        }
+
+        .time-group {
+            position: relative;
+        }
+
+        .time-group::after {
+            content: '点击选择时间';
+            position: absolute;
+            right: 45px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 11px;
+            color: #999;
+            pointer-events: none;
+        }
+
         .time-inputs {
             display: flex;
             gap: 15px;
@@ -318,7 +346,7 @@
                     >
                 </div>
 
-                <div class="form-group">
+                <div class="form-group time-group">
                     <label>定时时间 <span class="required">*</span></label>
                     <input 
                         type="datetime-local" 
@@ -377,7 +405,7 @@
             const now = new Date();
             const timeInput = document.getElementById('scheduledTime');
             
-            const minutes = 5;
+            const minutes = 1;
             const defaultTime = new Date(now.getTime() + minutes * 60000);
             
             const year = defaultTime.getFullYear();
@@ -606,8 +634,6 @@
                 
                 if (data.success) {
                     showAlert('定时任务创建成功！', 'success');
-                    this.reset();
-                    setDefaultTime();
                     await loadTasks();
                 } else {
                     showAlert(data.message || '创建任务失败', 'error');
