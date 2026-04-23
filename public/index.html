@@ -100,47 +100,241 @@
             -moz-appearance: none;
         }
 
-        input[type="datetime-local"].form-control {
-            cursor: pointer;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='2' ry='2'%3E%3C/rect%3E%3Cline x1='16' y1='2' x2='16' y2='6'%3E%3C/line%3E%3Cline x1='8' y1='2' x2='8' y2='6'%3E%3C/line%3E%3Cline x1='3' y1='10' x2='21' y2='10'%3E%3C/line%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 12px center;
-            padding-right: 45px;
+        .time-picker-container {
+            position: relative;
         }
 
-        input[type="datetime-local"].form-control:hover {
+        .time-picker-btn {
+            width: 100%;
+            padding: 12px 16px 12px 45px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            text-align: left;
+            background: #fafafa;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .time-picker-btn::before {
+            content: '';
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 20px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23667eea' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='2' ry='2'%3E%3C/rect%3E%3Cline x1='16' y1='2' x2='16' y2='6'%3E%3C/line%3E%3Cline x1='8' y1='2' x2='8' y2='6'%3E%3C/line%3E%3Cline x1='3' y1='10' x2='21' y2='10'%3E%3C/line%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+
+        .time-picker-btn::after {
+            content: '';
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 12px;
+            height: 12px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+
+        .time-picker-btn:hover {
             border-color: #667eea;
             background-color: #f0f4ff;
         }
 
-        .time-group {
-            position: relative;
+        .time-picker-btn:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
 
-        .time-group::after {
-            content: '点击选择时间';
+        .time-picker-dropdown {
             position: absolute;
-            right: 45px;
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: 11px;
-            color: #999;
-            pointer-events: none;
+            top: 100%;
+            left: 0;
+            right: 0;
+            margin-top: 8px;
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(102, 126, 234, 0.3);
+            z-index: 1000;
+            display: none;
+            overflow: hidden;
         }
 
-        .time-inputs {
+        .time-picker-dropdown.show {
+            display: block;
+            animation: dropdownSlide 0.2s ease-out;
+        }
+
+        @keyframes dropdownSlide {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .time-picker-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 20px;
             display: flex;
-            gap: 15px;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        .time-inputs > div {
-            flex: 1;
+        .time-picker-header h3 {
+            font-size: 14px;
+            font-weight: 600;
         }
 
-        .time-inputs label {
+        .time-picker-close {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 16px;
+            line-height: 1;
+            transition: all 0.2s ease;
+        }
+
+        .time-picker-close:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .time-picker-content {
+            padding: 20px;
+        }
+
+        .time-step-title {
             font-size: 12px;
             color: #666;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .time-step-title .step-number {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            background: #667eea;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 20px;
+            margin-right: 8px;
+            font-size: 11px;
+        }
+
+        .time-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .time-grid.month-grid {
+            grid-template-columns: repeat(4, 1fr);
+        }
+
+        .time-grid.day-grid {
+            grid-template-columns: repeat(7, 1fr);
+        }
+
+        .time-grid.hour-grid {
+            grid-template-columns: repeat(6, 1fr);
+        }
+
+        .time-grid.minute-grid {
+            grid-template-columns: repeat(6, 1fr);
+        }
+
+        .time-option {
+            padding: 10px 8px;
+            text-align: center;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s ease;
+            background: white;
+        }
+
+        .time-option:hover {
+            border-color: #667eea;
+            background: #f0f4ff;
+            color: #667eea;
+        }
+
+        .time-option.selected {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .time-option.disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .time-option.disabled:hover {
+            border-color: #e0e0e0;
+            background: white;
+            color: inherit;
+        }
+
+        .time-divider {
+            height: 1px;
+            background: #eee;
+            margin: 15px 0;
+        }
+
+        .time-selected-display {
+            display: flex;
+            justify-content: center;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .time-selected-display .display-item {
+            text-align: center;
+            padding: 0 10px;
+        }
+
+        .time-selected-display .display-item:not(:last-child) {
+            border-right: 2px solid #e0e0e0;
+        }
+
+        .time-selected-display .display-label {
+            font-size: 10px;
+            color: #999;
             margin-bottom: 4px;
+        }
+
+        .time-selected-display .display-value {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .time-selected-display .display-value.completed {
+            color: #667eea;
         }
 
         .btn {
@@ -315,6 +509,21 @@
             color: #e74c3c;
             margin-top: 5px;
         }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.3);
+            z-index: 999;
+            display: none;
+        }
+
+        .overlay.show {
+            display: block;
+        }
     </style>
 </head>
 <body>
@@ -346,15 +555,15 @@
                     >
                 </div>
 
-                <div class="form-group time-group">
+                <div class="form-group">
                     <label>定时时间 <span class="required">*</span></label>
-                    <input 
-                        type="datetime-local" 
-                        id="scheduledTime" 
-                        class="form-control" 
-                        required
-                    >
-                    <div id="countdown" class="countdown"></div>
+                    <div class="time-picker-container">
+                        <button type="button" class="time-picker-btn" id="timePickerBtn">
+                            请选择时间
+                        </button>
+                        <input type="hidden" id="scheduledTime" required>
+                        <div id="countdown" class="countdown"></div>
+                    </div>
                 </div>
 
                 <button type="submit" id="submitBtn" class="btn btn-primary">
@@ -374,10 +583,315 @@
         </div>
     </div>
 
+    <div class="overlay" id="overlay"></div>
+
+    <div class="time-picker-dropdown" id="timePickerDropdown">
+        <div class="time-picker-header">
+            <h3 id="pickerTitle">选择年份</h3>
+            <button type="button" class="time-picker-close" id="closePicker">×</button>
+        </div>
+        <div class="time-picker-content">
+            <div class="time-selected-display" id="selectedDisplay">
+                <div class="display-item">
+                    <div class="display-label">年</div>
+                    <div class="display-value" id="displayYear">-</div>
+                </div>
+                <div class="display-item">
+                    <div class="display-label">月</div>
+                    <div class="display-value" id="displayMonth">-</div>
+                </div>
+                <div class="display-item">
+                    <div class="display-label">日</div>
+                    <div class="display-value" id="displayDay">-</div>
+                </div>
+                <div class="display-item">
+                    <div class="display-label">时</div>
+                    <div class="display-value" id="displayHour">-</div>
+                </div>
+                <div class="display-item">
+                    <div class="display-label">分</div>
+                    <div class="display-value" id="displayMinute">-</div>
+                </div>
+            </div>
+
+            <div class="time-step-title" id="stepTitle">
+                <span class="step-number">1</span> 请选择年份
+            </div>
+            <div class="time-grid" id="pickerGrid">
+            </div>
+        </div>
+    </div>
+
     <script>
         const API_BASE = '/api';
         let tasks = [];
         let countdownInterval = null;
+
+        let timePickerState = {
+            currentStep: 'year',
+            year: null,
+            month: null,
+            day: null,
+            hour: null,
+            minute: null
+        };
+
+        const timePickerBtn = document.getElementById('timePickerBtn');
+        const timePickerDropdown = document.getElementById('timePickerDropdown');
+        const overlay = document.getElementById('overlay');
+        const closePickerBtn = document.getElementById('closePicker');
+        const pickerTitle = document.getElementById('pickerTitle');
+        const stepTitle = document.getElementById('stepTitle');
+        const pickerGrid = document.getElementById('pickerGrid');
+
+        function getCurrentTimePlusOneMinute() {
+            const now = new Date();
+            return new Date(now.getTime() + 60000);
+        }
+
+        function formatTimeDisplay(date) {
+            if (!date) return '请选择时间';
+            return date.toLocaleString('zh-CN', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        function getDaysInMonth(year, month) {
+            return new Date(year, month, 0).getDate();
+        }
+
+        function updateDisplay() {
+            const displayYear = document.getElementById('displayYear');
+            const displayMonth = document.getElementById('displayMonth');
+            const displayDay = document.getElementById('displayDay');
+            const displayHour = document.getElementById('displayHour');
+            const displayMinute = document.getElementById('displayMinute');
+
+            displayYear.textContent = timePickerState.year || '-';
+            displayYear.className = 'display-value' + (timePickerState.year ? ' completed' : '');
+            
+            displayMonth.textContent = timePickerState.month ? String(timePickerState.month).padStart(2, '0') : '-';
+            displayMonth.className = 'display-value' + (timePickerState.month ? ' completed' : '');
+            
+            displayDay.textContent = timePickerState.day ? String(timePickerState.day).padStart(2, '0') : '-';
+            displayDay.className = 'display-value' + (timePickerState.day ? ' completed' : '');
+            
+            displayHour.textContent = timePickerState.hour !== null ? String(timePickerState.hour).padStart(2, '0') : '-';
+            displayHour.className = 'display-value' + (timePickerState.hour !== null ? ' completed' : '');
+            
+            displayMinute.textContent = timePickerState.minute !== null ? String(timePickerState.minute).padStart(2, '0') : '-';
+            displayMinute.className = 'display-value' + (timePickerState.minute !== null ? ' completed' : '');
+        }
+
+        function generateYears() {
+            const now = new Date();
+            const currentYear = now.getFullYear();
+            const years = [];
+            
+            for (let i = 0; i < 5; i++) {
+                years.push({
+                    value: currentYear + i,
+                    label: (currentYear + i) + '年',
+                    disabled: false
+                });
+            }
+            
+            return years;
+        }
+
+        function generateMonths() {
+            const months = [];
+            const now = new Date();
+            const currentYear = now.getFullYear();
+            const currentMonth = now.getMonth() + 1;
+            
+            for (let i = 1; i <= 12; i++) {
+                const isDisabled = (timePickerState.year === currentYear && i < currentMonth);
+                months.push({
+                    value: i,
+                    label: i + '月',
+                    disabled: isDisabled
+                });
+            }
+            
+            return months;
+        }
+
+        function generateDays() {
+            const days = [];
+            const daysInMonth = getDaysInMonth(timePickerState.year, timePickerState.month);
+            const now = new Date();
+            const currentYear = now.getFullYear();
+            const currentMonth = now.getMonth() + 1;
+            const currentDay = now.getDate();
+            
+            for (let i = 1; i <= daysInMonth; i++) {
+                const isDisabled = (timePickerState.year === currentYear && 
+                                    timePickerState.month === currentMonth && 
+                                    i < currentDay);
+                days.push({
+                    value: i,
+                    label: i + '日',
+                    disabled: isDisabled
+                });
+            }
+            
+            return days;
+        }
+
+        function generateHours() {
+            const hours = [];
+            const now = new Date();
+            const currentYear = now.getFullYear();
+            const currentMonth = now.getMonth() + 1;
+            const currentDay = now.getDate();
+            const currentHour = now.getHours();
+            
+            const isToday = (timePickerState.year === currentYear && 
+                            timePickerState.month === currentMonth && 
+                            timePickerState.day === currentDay);
+            
+            for (let i = 0; i < 24; i++) {
+                const isDisabled = isToday && i <= currentHour;
+                hours.push({
+                    value: i,
+                    label: String(i).padStart(2, '0') + '时',
+                    disabled: isDisabled
+                });
+            }
+            
+            return hours;
+        }
+
+        function generateMinutes() {
+            const minutes = [];
+            const now = new Date();
+            const currentYear = now.getFullYear();
+            const currentMonth = now.getMonth() + 1;
+            const currentDay = now.getDate();
+            const currentHour = now.getHours();
+            const currentMinute = now.getMinutes();
+            
+            const isToday = (timePickerState.year === currentYear && 
+                            timePickerState.month === currentMonth && 
+                            timePickerState.day === currentDay &&
+                            timePickerState.hour === currentHour);
+            
+            for (let i = 0; i < 60; i += 5) {
+                const isDisabled = isToday && i <= currentMinute;
+                minutes.push({
+                    value: i,
+                    label: String(i).padStart(2, '0') + '分',
+                    disabled: isDisabled
+                });
+            }
+            
+            return minutes;
+        }
+
+        function renderGrid(items, gridClass = '') {
+            pickerGrid.innerHTML = '';
+            pickerGrid.className = 'time-grid ' + gridClass;
+            
+            items.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'time-option';
+                if (item.value === timePickerState[timePickerState.currentStep]) {
+                    div.classList.add('selected');
+                }
+                if (item.disabled) {
+                    div.classList.add('disabled');
+                }
+                div.textContent = item.label;
+                div.dataset.value = item.value;
+                
+                if (!item.disabled) {
+                    div.addEventListener('click', () => handleSelection(item.value));
+                }
+                
+                pickerGrid.appendChild(div);
+            });
+        }
+
+        function handleSelection(value) {
+            timePickerState[timePickerState.currentStep] = value;
+            updateDisplay();
+            
+            const steps = ['year', 'month', 'day', 'hour', 'minute'];
+            const currentIndex = steps.indexOf(timePickerState.currentStep);
+            
+            if (currentIndex < steps.length - 1) {
+                timePickerState.currentStep = steps[currentIndex + 1];
+                updatePickerUI();
+            } else {
+                const selectedDate = new Date(
+                    timePickerState.year,
+                    timePickerState.month - 1,
+                    timePickerState.day,
+                    timePickerState.hour,
+                    timePickerState.minute
+                );
+                
+                const formatted = `${timePickerState.year}-${String(timePickerState.month).padStart(2, '0')}-${String(timePickerState.day).padStart(2, '0')}T${String(timePickerState.hour).padStart(2, '0')}:${String(timePickerState.minute).padStart(2, '0')}`;
+                
+                document.getElementById('scheduledTime').value = formatted;
+                timePickerBtn.textContent = formatTimeDisplay(selectedDate);
+                
+                closeTimePicker();
+            }
+        }
+
+        function updatePickerUI() {
+            const stepInfo = {
+                year: { title: '选择年份', step: 1, items: generateYears(), gridClass: '' },
+                month: { title: '选择月份', step: 2, items: generateMonths(), gridClass: 'month-grid' },
+                day: { title: '选择日期', step: 3, items: generateDays(), gridClass: 'day-grid' },
+                hour: { title: '选择小时', step: 4, items: generateHours(), gridClass: 'hour-grid' },
+                minute: { title: '选择分钟', step: 5, items: generateMinutes(), gridClass: 'minute-grid' }
+            };
+            
+            const info = stepInfo[timePickerState.currentStep];
+            pickerTitle.textContent = info.title;
+            stepTitle.innerHTML = `<span class="step-number">${info.step}</span> 请选择${info.title.replace('选择', '')}`;
+            
+            renderGrid(info.items, info.gridClass);
+        }
+
+        function openTimePicker() {
+            const now = new Date();
+            const defaultTime = new Date(now.getTime() + 60000);
+            
+            if (!timePickerState.year) {
+                timePickerState.year = defaultTime.getFullYear();
+                timePickerState.month = defaultTime.getMonth() + 1;
+                timePickerState.day = defaultTime.getDate();
+                timePickerState.hour = defaultTime.getHours();
+                timePickerState.minute = Math.ceil(defaultTime.getMinutes() / 5) * 5;
+                if (timePickerState.minute >= 60) {
+                    timePickerState.minute = 0;
+                }
+            }
+            
+            timePickerState.currentStep = 'year';
+            updateDisplay();
+            updatePickerUI();
+            
+            overlay.classList.add('show');
+            timePickerDropdown.classList.add('show');
+        }
+
+        function closeTimePicker() {
+            overlay.classList.remove('show');
+            timePickerDropdown.classList.remove('show');
+        }
+
+        timePickerBtn.addEventListener('click', openTimePicker);
+        closePickerBtn.addEventListener('click', closeTimePicker);
+        overlay.addEventListener('click', closeTimePicker);
 
         async function loadBrowsers() {
             try {
@@ -399,22 +913,6 @@
                 console.error('加载浏览器列表失败:', error);
                 showAlert('无法加载浏览器列表，请刷新页面重试', 'error');
             }
-        }
-
-        function setDefaultTime() {
-            const now = new Date();
-            const timeInput = document.getElementById('scheduledTime');
-            
-            const minutes = 1;
-            const defaultTime = new Date(now.getTime() + minutes * 60000);
-            
-            const year = defaultTime.getFullYear();
-            const month = String(defaultTime.getMonth() + 1).padStart(2, '0');
-            const day = String(defaultTime.getDate()).padStart(2, '0');
-            const hours = String(defaultTime.getHours()).padStart(2, '0');
-            const mins = String(defaultTime.getMinutes()).padStart(2, '0');
-            
-            timeInput.value = `${year}-${month}-${day}T${hours}:${mins}`;
         }
 
         function showAlert(message, type = 'success') {
@@ -647,18 +1145,22 @@
             }
         });
 
-        document.getElementById('scheduledTime').addEventListener('change', function() {
-            const scheduledDate = new Date(this.value);
-            const now = new Date();
-            
-            if (scheduledDate <= now) {
-                showAlert('定时时间必须大于当前时间', 'error');
-            }
-        });
-
         async function init() {
             await loadBrowsers();
-            setDefaultTime();
+            
+            const now = new Date();
+            const defaultTime = new Date(now.getTime() + 60000);
+            const formatted = `${defaultTime.getFullYear()}-${String(defaultTime.getMonth() + 1).padStart(2, '0')}-${String(defaultTime.getDate()).padStart(2, '0')}T${String(defaultTime.getHours()).padStart(2, '0')}:${String(defaultTime.getMinutes()).padStart(2, '0')}`;
+            
+            document.getElementById('scheduledTime').value = formatted;
+            timePickerBtn.textContent = formatTimeDisplay(defaultTime);
+            
+            timePickerState.year = defaultTime.getFullYear();
+            timePickerState.month = defaultTime.getMonth() + 1;
+            timePickerState.day = defaultTime.getDate();
+            timePickerState.hour = defaultTime.getHours();
+            timePickerState.minute = defaultTime.getMinutes();
+            
             await loadTasks();
         }
 
