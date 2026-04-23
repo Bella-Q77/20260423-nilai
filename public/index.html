@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>浏览器定时打开工具</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', 'Segoe UI', Tahoma, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 600px;
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .form-section {
+            padding: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .form-group label .required {
+            color: #e74c3c;
+            margin-left: 3px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            background: #fafafa;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-control:hover {
+            border-color: #b3b3b3;
+        }
+
+        select.form-control {
+            cursor: pointer;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            padding-right: 40px;
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+        }
+
+        .time-inputs {
+            display: flex;
+            gap: 15px;
+        }
+
+        .time-inputs > div {
+            flex: 1;
+        }
+
+        .time-inputs label {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 4px;
+        }
+
+        .btn {
+            padding: 14px 28px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-danger {
+            background: #e74c3c;
+            color: white;
+            padding: 8px 16px;
+            font-size: 12px;
+            width: auto;
+        }
+
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+
+        .tasks-section {
+            padding: 30px;
+            border-top: 1px solid #eee;
+        }
+
+        .tasks-section h2 {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tasks-section h2 .badge {
+            background: #667eea;
+            color: white;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+        }
+
+        .task-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .task-item {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            border-left: 4px solid #667eea;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            transition: all 0.3s ease;
+        }
+
+        .task-item:hover {
+            background: #f0f1f3;
+        }
+
+        .task-info {
+            flex: 1;
+        }
+
+        .task-url {
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+            margin-bottom: 8px;
+            word-break: break-all;
+        }
+
+        .task-details {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .task-detail {
+            background: white;
+            padding: 4px 10px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .task-detail .icon {
+            font-size: 14px;
+        }
+
+        .no-tasks {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        .no-tasks .icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+
+        .alert {
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .countdown {
+            font-size: 11px;
+            color: #e74c3c;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌐 浏览器定时打开工具</h1>
+            <p>选择浏览器、输入网址、设定时间，自动为您打开</p>
+        </div>
+
+        <div class="form-section">
+            <div id="alertContainer"></div>
+
+            <form id="scheduleForm">
+                <div class="form-group">
+                    <label for="browser">选择浏览器 <span class="required">*</span></label>
+                    <select id="browser" class="form-control" required>
+                        <option value="">加载中...</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="url">输入网址 <span class="required">*</span></label>
+                    <input 
+                        type="url" 
+                        id="url" 
+                        class="form-control" 
+                        placeholder="https://www.example.com" 
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label>定时时间 <span class="required">*</span></label>
+                    <input 
+                        type="datetime-local" 
+                        id="scheduledTime" 
+                        class="form-control" 
+                        required
+                    >
+                    <div id="countdown" class="countdown"></div>
+                </div>
+
+                <button type="submit" id="submitBtn" class="btn btn-primary">
+                    创建定时任务
+                </button>
+            </form>
+        </div>
+
+        <div class="tasks-section">
+            <h2>📋 定时任务列表 <span class="badge" id="taskCount">0</span></h2>
+            <div id="taskList" class="task-list">
+                <div class="no-tasks">
+                    <div class="icon">⏰</div>
+                    <p>暂无定时任务</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '/api';
+        let tasks = [];
+        let countdownInterval = null;
+
+        async function loadBrowsers() {
+            try {
+                const response = await fetch(`${API_BASE}/browsers`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    const select = document.getElementById('browser');
+                    select.innerHTML = '<option value="">请选择浏览器</option>';
+                    
+                    data.browsers.forEach(browser => {
+                        const option = document.createElement('option');
+                        option.value = browser.key;
+                        option.textContent = browser.name;
+                        select.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                console.error('加载浏览器列表失败:', error);
+                showAlert('无法加载浏览器列表，请刷新页面重试', 'error');
+            }
+        }
+
+        function setDefaultTime() {
+            const now = new Date();
+            const timeInput = document.getElementById('scheduledTime');
+            
+            const minutes = 5;
+            const defaultTime = new Date(now.getTime() + minutes * 60000);
+            
+            const year = defaultTime.getFullYear();
+            const month = String(defaultTime.getMonth() + 1).padStart(2, '0');
+            const day = String(defaultTime.getDate()).padStart(2, '0');
+            const hours = String(defaultTime.getHours()).padStart(2, '0');
+            const mins = String(defaultTime.getMinutes()).padStart(2, '0');
+            
+            timeInput.value = `${year}-${month}-${day}T${hours}:${mins}`;
+        }
+
+        function showAlert(message, type = 'success') {
+            const container = document.getElementById('alertContainer');
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type}`;
+            alertDiv.innerHTML = `
+                <span>${type === 'success' ? '✅' : '❌'}</span>
+                <span>${message}</span>
+            `;
+            container.innerHTML = '';
+            container.appendChild(alertDiv);
+            
+            setTimeout(() => {
+                if (alertDiv.parentNode === container) {
+                    container.removeChild(alertDiv);
+                }
+            }, 5000);
+        }
+
+        async function loadTasks() {
+            try {
+                const response = await fetch(`${API_BASE}/tasks`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    tasks = data.tasks;
+                    renderTasks();
+                }
+            } catch (error) {
+                console.error('加载任务列表失败:', error);
+            }
+        }
+
+        function renderTasks() {
+            const taskList = document.getElementById('taskList');
+            const taskCount = document.getElementById('taskCount');
+            
+            taskCount.textContent = tasks.length;
+            
+            if (tasks.length === 0) {
+                taskList.innerHTML = `
+                    <div class="no-tasks">
+                        <div class="icon">⏰</div>
+                        <p>暂无定时任务</p>
+                    </div>
+                `;
+                return;
+            }
+
+            taskList.innerHTML = tasks.map(task => `
+                <div class="task-item" data-id="${task.id}">
+                    <div class="task-info">
+                        <div class="task-url">${escapeHtml(task.url)}</div>
+                        <div class="task-details">
+                            <div class="task-detail">
+                                <span class="icon">🌐</span>
+                                <span>${getBrowserName(task.browser)}</span>
+                            </div>
+                            <div class="task-detail">
+                                <span class="icon">🕐</span>
+                                <span>${formatDateTime(task.scheduledTime)}</span>
+                            </div>
+                        </div>
+                        <div class="countdown" data-countdown="${task.id}">
+                            剩余时间: 计算中...
+                        </div>
+                    </div>
+                    <button class="btn btn-danger" onclick="cancelTask('${task.id}')">
+                        取消
+                    </button>
+                </div>
+            `).join('');
+
+            startCountdownUpdates();
+        }
+
+        function getBrowserName(key) {
+            const browserNames = {
+                'default': '系统默认浏览器',
+                'chrome': 'Google Chrome',
+                'edge': 'Microsoft Edge',
+                'firefox': 'Mozilla Firefox',
+                '360': '360安全浏览器'
+            };
+            return browserNames[key] || key;
+        }
+
+        function formatDateTime(dateTime) {
+            const date = new Date(dateTime);
+            return date.toLocaleString('zh-CN', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function startCountdownUpdates() {
+            if (countdownInterval) {
+                clearInterval(countdownInterval);
+            }
+
+            countdownInterval = setInterval(() => {
+                updateCountdowns();
+            }, 1000);
+
+            updateCountdowns();
+        }
+
+        function updateCountdowns() {
+            const now = new Date();
+            
+            tasks.forEach(task => {
+                const countdownEl = document.querySelector(`[data-countdown="${task.id}"]`);
+                if (!countdownEl) return;
+
+                const scheduled = new Date(task.scheduledTime);
+                const diff = scheduled - now;
+
+                if (diff <= 0) {
+                    countdownEl.textContent = '即将执行...';
+                    setTimeout(() => loadTasks(), 1000);
+                } else {
+                    const minutes = Math.floor(diff / 60000);
+                    const seconds = Math.floor((diff % 60000) / 1000);
+                    
+                    if (minutes > 60) {
+                        const hours = Math.floor(minutes / 60);
+                        const remainingMins = minutes % 60;
+                        countdownEl.textContent = `剩余时间: ${hours}小时 ${remainingMins}分钟`;
+                    } else {
+                        countdownEl.textContent = `剩余时间: ${minutes}分钟 ${seconds}秒`;
+                    }
+                }
+            });
+        }
+
+        async function cancelTask(taskId) {
+            if (!confirm('确定要取消这个定时任务吗？')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/tasks/${taskId}`, {
+                    method: 'DELETE'
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    showAlert('任务已取消', 'success');
+                    await loadTasks();
+                } else {
+                    showAlert(data.message || '取消任务失败', 'error');
+                }
+            } catch (error) {
+                console.error('取消任务失败:', error);
+                showAlert('取消任务失败，请重试', 'error');
+            }
+        }
+
+        document.getElementById('scheduleForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById('submitBtn');
+            const browser = document.getElementById('browser').value;
+            const url = document.getElementById('url').value;
+            const scheduledTime = document.getElementById('scheduledTime').value;
+
+            if (!browser) {
+                showAlert('请选择浏览器', 'error');
+                return;
+            }
+
+            if (!url) {
+                showAlert('请输入网址', 'error');
+                return;
+            }
+
+            if (!scheduledTime) {
+                showAlert('请选择定时时间', 'error');
+                return;
+            }
+
+            const scheduledDate = new Date(scheduledTime);
+            const now = new Date();
+            
+            if (scheduledDate <= now) {
+                showAlert('定时时间必须大于当前时间', 'error');
+                return;
+            }
+
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="loading"></span> 创建中...';
+
+            try {
+                const response = await fetch(`${API_BASE}/schedule`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        browser,
+                        url,
+                        scheduledTime
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    showAlert('定时任务创建成功！', 'success');
+                    this.reset();
+                    setDefaultTime();
+                    await loadTasks();
+                } else {
+                    showAlert(data.message || '创建任务失败', 'error');
+                }
+            } catch (error) {
+                console.error('创建任务失败:', error);
+                showAlert('创建任务失败，请重试', 'error');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '创建定时任务';
+            }
+        });
+
+        document.getElementById('scheduledTime').addEventListener('change', function() {
+            const scheduledDate = new Date(this.value);
+            const now = new Date();
+            
+            if (scheduledDate <= now) {
+                showAlert('定时时间必须大于当前时间', 'error');
+            }
+        });
+
+        async function init() {
+            await loadBrowsers();
+            setDefaultTime();
+            await loadTasks();
+        }
+
+        init();
+    </script>
+</body>
+</html>
