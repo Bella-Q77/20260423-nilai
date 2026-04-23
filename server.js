@@ -3,6 +3,7 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const cron = require('node-cron');
 const { exec } = require('child_process');
+const { existsSync } = require('fs');
 const path = require('path');
 
 const app = express();
@@ -17,34 +18,38 @@ const scheduledTasks = new Map();
 const browsers = {
   chrome: {
     name: 'Google Chrome',
+    winExecutable: 'chrome.exe',
     winPaths: [
       'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
       'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',
       `${process.env.LOCALAPPDATA}\\Google\\Chrome\\Application\\chrome.exe`
     ],
-    macPath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
-    linuxPath: 'google-chrome'
+    macApp: 'Google Chrome',
+    linuxCommand: 'google-chrome'
   },
   edge: {
     name: 'Microsoft Edge',
+    winExecutable: 'msedge.exe',
     winPaths: [
       'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe',
       'C:\\Program Files\\Microsoft\\Edge\\Application\\msedge.exe'
     ],
-    macPath: '/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge',
-    linuxPath: 'microsoft-edge'
+    macApp: 'Microsoft Edge',
+    linuxCommand: 'microsoft-edge'
   },
   firefox: {
     name: 'Mozilla Firefox',
+    winExecutable: 'firefox.exe',
     winPaths: [
       'C:\\Program Files\\Mozilla Firefox\\firefox.exe',
       'C:\\Program Files (x86)\\Mozilla Firefox\\firefox.exe'
     ],
-    macPath: '/Applications/Firefox.app/Contents/MacOS/firefox',
-    linuxPath: 'firefox'
+    macApp: 'Firefox',
+    linuxCommand: 'firefox'
   },
   '360': {
     name: '360安全浏览器',
+    winExecutable: '360se.exe',
     winPaths: [
       'C:\\Program Files\\360\\360se6\\Application\\360se.exe',
       'C:\\Program Files (x86)\\360\\360se6\\Application\\360se.exe',
@@ -53,29 +58,41 @@ const browsers = {
   }
 };
 
-function getBrowserPath(browserKey) {
-  const browser = browsers[browserKey];
-  if (!browser) return null;
-
+function getBrowserCommand(browserKey, url) {
   const platform = process.platform;
   
+  if (browserKey === 'default') {
+    if (platform === 'win32') {
+      return `start "" "${url}"`;
+    } else if (platform === 'darwin') {
+      return `open "${url}"`;
+    } else {
+      return `xdg-open "${url}"`;
+    }
+  }
+
+  const browser = browsers[browserKey];
+  if (!browser) {
+    return null;
+  }
+
   if (platform === 'win32') {
     if (browser.winPaths) {
       for (const winPath of browser.winPaths) {
-        try {
-          return `"${winPath}"`;
-        } catch (e) {
-          continue;
+        if (existsSync(winPath)) {
+          return `start "" "${winPath}" "${url}"`;
         }
       }
     }
+    
+    return `start "" "${browser.winExecutable}" "${url}"`;
   } else if (platform === 'darwin') {
-    if (browser.macPath) {
-      return `"${browser.macPath}"`;
+    if (browser.macApp) {
+      return `open -a "${browser.macApp}" "${url}"`;
     }
-  } else if (platform === 'linux') {
-    if (browser.linuxPath) {
-      return browser.linuxPath;
+  } else {
+    if (browser.linuxCommand) {
+      return `${browser.linuxCommand} "${url}"`;
     }
   }
   
@@ -83,39 +100,26 @@ function getBrowserPath(browserKey) {
 }
 
 function openUrl(browserKey, url) {
-  const platform = process.platform;
-  let command;
-
-  if (browserKey === 'default') {
-    if (platform === 'win32') {
-      command = `start "" "${url}"`;
-    } else if (platform === 'darwin') {
-      command = `open "${url}"`;
-    } else {
-      command = `xdg-open "${url}"`;
-    }
-  } else {
-    const browserPath = getBrowserPath(browserKey);
-    if (!browserPath) {
-      return { success: false, message: `未找到浏览器: ${browsers[browserKey]?.name || browserKey}` };
-    }
-
-    if (platform === 'win32') {
-      command = `${browserPath} "${url}"`;
-    } else if (platform === 'darwin') {
-      command = `open -a ${browserPath} "${url}"`;
-    } else {
-      command = `${browserPath} "${url}"`;
-    }
+  const command = getBrowserCommand(browserKey, url);
+  
+  if (!command) {
+    const errorMsg = `无法找到浏览器命令: ${browsers[browserKey]?.name || browserKey}`;
+    console.error(errorMsg);
+    return { success: false, message: errorMsg };
   }
 
-  exec(command, (error) => {
+  console.log(`执行命令: ${command}`);
+  
+  exec(command, { shell: 'cmd.exe' }, (error, stdout, stderr) => {
     if (error) {
-      console.error(`执行命令失败: ${error}`);
+      console.error(`执行命令失败: ${error.message}`);
+      console.error(`错误输出: ${stderr}`);
+    } else {
+      console.log(`命令执行成功: ${stdout || '无输出'}`);
     }
   });
 
-  return { success: true, message: `已打开: ${url}` };
+  return { success: true, message: `已尝试打开: ${url}` };
 }
 
 function createCronExpression(dateTime) {
